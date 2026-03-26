@@ -1,3 +1,4 @@
 # movierecommendation
 
-<!-- We need to do this project -->
+
+This is a project we need to do
