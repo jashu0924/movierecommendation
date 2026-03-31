@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from supabase import create_client
 
 load_dotenv()
-sb_back = create_client(os.environ["SUPABASE_URL_BACK"], os.environ["SUPABASE_KEY_BACK"])
+sb_back = create_client(os.environ["NEXT_PUBLIC_SUPABASE_URL"], os.environ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY"])
 app = Flask(__name__)
 CORS(app)
 
