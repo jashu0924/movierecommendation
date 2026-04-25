@@ -1,0 +1,20 @@
+body {
+  font-family: Arial;
+  background: linear-gradient(132deg, #42875f, #f24f35, #42f723);
+  color: #000000;
+  /*pink does not look good with this background */
+  padding: 20px;
+}
+img {
+  width: 90%;
+  border-radius: 13px;
+}
+/* adding color and fonts to the site to make it look a little nicer */
+/* simple css input output for the body image size and everything */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 80px);
+  gap: 10px;
+}
+
