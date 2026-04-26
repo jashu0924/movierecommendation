@@ -58,22 +58,16 @@ serve(async (req) => {
     }
 
     // ACTUAL SEARCH ENGINE 
-    // TF-IDF & BM25 PART 
+    // TF-IDF & BM25 PART + VSM for multi model logic
     if (path.endsWith("/search")) {
+      
       const query = url.searchParams.get("q");
+      // error in query format
       if (!query) return new Response("Error: Missing query parameter 'q'", { status: 400 });
 
+      // call supabase SQL function to get the movies w all 3 models 
       const { data, error } = await supabase
-        .from('movies')
-        .select('id, title, overview, vote_average, release_date')
-        // search the text w 'fts_weighted' column
-        .textSearch('fts_weighted', query, {
-          type: 'websearch', // will accomodate for syntax like "Space -Horror"
-          config: 'english' // accomodates for STEMMING !!
-        })
-        // Tie Breaker for relevance --> uses popularity/rating as a tie-breaker
-        .order('vote_average', { ascending: false })
-        .limit(15);
+        .rpc('search_movies_weighted', { query_text: query });
 
       if (error) throw error;
       return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
