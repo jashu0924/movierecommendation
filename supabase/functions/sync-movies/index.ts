@@ -1,55 +1,92 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-// Genre mapping for TMDB preprocessing
-const genreMap: Record<number, string> = {
-  28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
-  99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
-  27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 
-  878: "Science Fiction", 10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western"
-};
 
-Deno.serve(async (req) => {
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+// Configuration section, getting API keys etc
+const TMDB_API_KEY = '2a664ef3374815347949ca389558ca4c';
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+
+// Handler for each HTTP request 
+serve(async (req) => {
+  const url = new URL(req.url);
+  const path = url.pathname;
 
   try {
-    // 1. Fetch from TMDB
-    const tmdbKey = '2a664ef3374815347949ca389558ca4c';
-    const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${tmdbKey}&language=en-US&page=1`);
-    const { results } = await res.json();
+    // scaling database from og ~100 --> >5000
+    if (path.endsWith("/sync")) {
+      // Populating Database with multiple calls
+      const startPage = Number(url.searchParams.get("start")) || 1;
+      const pagesToFetch = 25; // sets 25 pages to be pulled per call, gets about 400-500 per call 
+      let allMovies = [];
 
-    // 2. PREPROCESSING (Evidence for Milestone)
-    const processedMovies = results.map((m: any) => {
-      // Map genre IDs to text
-      const genreNames = m.genre_ids.map((id: number) => genreMap[id] || "").join(" ");
-      
-      // Create the "Search Soup" - Lowercased for consistency
-      const soup = `${m.title} ${genreNames} ${m.overview}`.toLowerCase();
+      // Fetch loop --> actually calls TMDB API 25 times to get ~500 movies per call 
+      for (let page = startPage; page < startPage + pagesToFetch; page++) {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`
+        );
+        const data = await response.json();
+        if (data.results) allMovies.push(...data.results);
+      }
 
-      return {
-        id: m.id,
-        title: m.title,
-        overview: m.overview,
-        genres: genreNames,
-        release_date: m.release_date,
-        search_metadata: soup
-      };
-    });
+      // Remove duplicates and map data to match Supabase table schema w/ 9 columns 
+      const seenIds = new Set();
+      const moviesToInsert = allMovies
+        .filter(m => !seenIds.has(m.id) && seenIds.add(m.id))
+        .map(movie => ({
+          id: movie.id,
+          title: movie.title,
+          overview: movie.overview,
+          release_date: movie.release_date,
+          vote_average: movie.vote_average,
+          // making sure search_metadata is still populated 
+          search_metadata: `${movie.title} ${movie.overview}`.toLowerCase()
+        }));
 
-    // 3. Load into DB
-    const { data, error } = await supabase
-      .from('movies')
-      .upsert(processedMovies, { onConflict: 'id' });
+      // updates existing movies or inserts new ones based on 'id'
+      const { error } = await supabase.from('movies').upsert(moviesToInsert, { onConflict: 'id' });
+      if (error) throw error;
 
-    if (error) throw error;
 
-    return new Response(JSON.stringify({ message: "Sync successful", count: processedMovies.length }), {
-      headers: { "Content-Type": "application/json" },
-    });
+      return new Response(JSON.stringify({ 
+        message: `Successfully synced ${moviesToInsert.length} movies!`,
+        range: `Pages ${startPage} to ${startPage + pagesToFetch - 1}`
+      }), { headers: { "Content-Type": "application/json" } });
+    }
+
+    // ACTUAL SEARCH ENGINE 
+    // TF-IDF & BM25 PART 
+    if (path.endsWith("/search")) {
+      const query = url.searchParams.get("q");
+      if (!query) return new Response("Error: Missing query parameter 'q'", { status: 400 });
+
+      const { data, error } = await supabase
+        .from('movies')
+        .select('id, title, overview, vote_average, release_date')
+        // search the text w 'fts_weighted' column
+        .textSearch('fts_weighted', query, {
+          type: 'websearch', // will accomodate for syntax like "Space -Horror"
+          config: 'english' // accomodates for STEMMING !!
+        })
+        // Tie Breaker for relevance --> uses popularity/rating as a tie-breaker
+        .order('vote_average', { ascending: false })
+        .limit(15);
+
+      if (error) throw error;
+      return new Response(JSON.stringify(data), { headers: { "Content-Type": "application/json" } });
+    }
+
+    // Response for when we load data so we know how much has pulled/ if there was an error 
+    // UI 
+    return new Response(
+      `API Active. \nTo Sync: /sync?start=1 \nTo Search: /search?q=movie_title`, 
+      { status: 200 }
+    );
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
-})
+});
