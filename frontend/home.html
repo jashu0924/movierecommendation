@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>RJKN Movie Recommender - Home</title>
+    <link rel="stylesheet" href="looks.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <h2>RJKN Movie Recommender</h2>
+
+      <div>
+        <span id="user-email"></span>
+        <button id="user-signout-btn">Sign Out</button>
+      </div>
+    </nav>
+
+    <main class="movie-page">
+      <h1>Discover Movies</h1>
+
+      <input id="search" placeholder="Search for a movie..." />
+
+      <h2>Search Results</h2>
+      <div id="finalsearchOut" class="grid"></div>
+
+      <h2>Current Tops</h2>
+      <div id="newReleases" class="grid"></div>
+    </main>
+
+    <script src="home.js"></script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -6,13 +6,13 @@ from dotenv import load_dotenv
 from supabase import create_client
 
 load_dotenv()
-sb_back = create_client(os.environ["NEXT_PUBLIC_SUPABASE_URL"], os.environ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY"])
-app = Flask(__name__)
+sb_back = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_KEY"])
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
 
 @app.route("/")
 def home():
-    return jsonify({"message": "Flask backend is running"})
+    return send_from_directory(app.static_folder, 'oursite.html')
 
 @app.route("/search", methods=["GET"])
 def search():
