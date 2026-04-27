@@ -90,7 +90,9 @@ async function signIn() {
     return;
   }
 
+  localStorage.setItem("access_token", data.session.access_token);
   localStorage.setItem("user_email", data.user.email);
+  localStorage.setItem("user_id", data.user.id);
 
   window.location.href = "home.html";
 }
