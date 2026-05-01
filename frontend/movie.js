@@ -63,7 +63,45 @@ async function loadMovieDetails(movieId) {
 
         <h2>Description</h2>
         <p>${movie.overview || "No description available."}</p>
+
+        <button id="like-movie-btn" class="main-btn movie-action-btn">Like Movie</button>
+        <p id="like-status" class="status-text"></p>
       </div>
     </div>
   `;
+
+  document.getElementById("like-movie-btn").addEventListener("click", () => {
+    saveMovieLike(movie.id);
+  });
+}
+
+async function saveMovieLike(movieId) {
+  const status = document.getElementById("like-status");
+  status.textContent = "Saving like...";
+
+  try {
+    const response = await fetch("http://127.0.0.1:5000/movie-click", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        movie_id: movieId,
+        interaction_type: "like",
+        score: 3
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      status.textContent = `Like was not saved: ${data.error}`;
+      return;
+    }
+
+    status.textContent = "Saved to your liked movies.";
+  } catch (error) {
+    status.textContent = "Backend like save failed.";
+  }
 }

@@ -6,28 +6,87 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
 
-  <body>
-    <nav class="navbar">
-      <h2>RJKN Movie Recommender</h2>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="dot"></span>
+        <div>
+          <h2>RJKN</h2>
+          <p>Movie Recommender</p>
+        </div>
+      </div>
 
-      <div>
+      <nav class="side-nav">
+        <a href="#discover" class="side-link active">Discover</a>
+        <a href="#recommendations-section" class="side-link">Recommended</a>
+        <a href="liked.html" class="side-link">Liked Movies</a>
+        <a href="#history-section" class="side-link">Recent History</a>
+        <a href="#tops-section" class="side-link">Current Tops</a>
+      </nav>
+
+      <div class="sidebar-user">
+        <p>Signed in as</p>
         <span id="user-email"></span>
         <button id="user-signout-btn">Sign Out</button>
       </div>
-    </nav>
+    </aside>
 
-    <main class="movie-page">
-      <h1>Discover Movies</h1>
+    <main class="main-content">
+      <section id="discover" class="hero-section">
+        <p class="eyebrow">Personalized movie discovery</p>
+        <h1>Discover Movies</h1>
+        <p class="hero-subtitle">
+          Search movies, like your favorites, and get recommendations based on
+          your history.
+        </p>
 
-      <input id="search" placeholder="Search for a movie..." />
+        <input
+          id="search"
+          class="search-input"
+          placeholder="Search for a movie..."
+        />
+      </section>
 
-      <h2>Search Results</h2>
-      <div id="finalsearchOut" class="grid"></div>
+      <section class="content-section">
+        <div class="section-header">
+          <h2>Search Results</h2>
+        </div>
+        <div id="finalsearchOut" class="grid"></div>
+      </section>
 
-      <h2>Current Tops</h2>
-      <div id="newReleases" class="grid"></div>
+      <section id="recommendations-section" class="content-section">
+        <div class="section-header">
+          <div>
+            <h2>Recommended From Your History</h2>
+            <p id="recommendationProfile" class="muted-text"></p>
+          </div>
+
+          <div class="metric-pill">
+            <span>MAP@10</span>
+            <strong id="mapScore">0.00</strong>
+          </div>
+        </div>
+
+        <div id="recommendations" class="grid"></div>
+      </section>
+
+      <section id="history-section" class="content-section">
+        <div class="section-header">
+          <h2>Your Recent History</h2>
+        </div>
+        <div id="historyOut" class="history-list"></div>
+      </section>
+
+      <section id="tops-section" class="content-section">
+        <div class="section-header">
+          <h2>Current Tops</h2>
+        </div>
+        <div id="newReleases" class="grid"></div>
+      </section>
     </main>
+  </div>
 
-    <script src="home.js"></script>
-  </body>
+  <script src="home.js"></script>
+</body>
 </html>

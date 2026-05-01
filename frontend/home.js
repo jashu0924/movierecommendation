@@ -34,10 +34,23 @@ function creatingmovies(ourmovies, boxid) {
   ourmovies.slice(0, 9).forEach((m) => {
     const card = document.createElement("div");
     card.classList.add("movie-card");
+    const poster = m.poster_path
+      ? `https://image.tmdb.org/t/p/w200${m.poster_path}`
+      : "https://placehold.co/200x300/151820/c8ff3d?text=Movie";
+    const scoreHtml = typeof m.tfidf_score === "number"
+      ? `
+        <div class="score-row">
+          <span>TF-IDF ${m.tfidf_score.toFixed(2)}</span>
+          <span>BM25 ${m.bm25_score.toFixed(2)}</span>
+        </div>
+        <p class="final-score">Final ${m.final_score.toFixed(2)}</p>
+      `
+      : "";
 
     card.innerHTML = `
-      <img src="https://image.tmdb.org/t/p/w200${m.poster_path}" />
+      <img src="${poster}" />
       <p>${m.title}</p>
+      ${scoreHtml}
     `;
 
     card.addEventListener("click", () => {
@@ -97,12 +110,68 @@ async function searchm(query) {
   }
 
   const myapilink = await fetch(
-    `https://api.themoviedb.org/3/search/movie?api_key=${tmdbk}&query=${query}`
+    `http://127.0.0.1:5000/search?q=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }
   );
 
   const data = await myapilink.json();
 
   creatingmovies(data.results, "finalsearchOut");
+}
+
+async function loadRecommendations() {
+  const response = await fetch("http://127.0.0.1:5000/recommendations", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    document.getElementById("recommendations").innerHTML = `<p>${data.error}</p>`;
+    return;
+  }
+
+  document.getElementById("recommendationProfile").textContent = data.profile
+    ? `Profile terms: ${data.profile}`
+    : "Click or like movies to build your recommendation profile.";
+  const mapScore = data.metrics.map_at_10;
+  document.getElementById("mapScore").textContent =
+    mapScore === null ? "N/A" : Number(mapScore).toFixed(2);
+  creatingmovies(data.results, "recommendations");
+}
+
+async function loadHistory() {
+  const response = await fetch("http://127.0.0.1:5000/user-history", {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  const data = await response.json();
+  const historyOut = document.getElementById("historyOut");
+
+  if (!response.ok) {
+    historyOut.innerHTML = `<p>${data.error}</p>`;
+    return;
+  }
+
+  if (!data.history.length) {
+    historyOut.innerHTML = "<p>No history yet.</p>";
+    return;
+  }
+
+  historyOut.innerHTML = data.history.slice(0, 8).map((item) => `
+    <div class="history-item">
+      <strong>${item.movie.title || `Movie ${item.movie_id}`}</strong>
+      <span>${item.interaction_type} - score ${item.score}</span>
+    </div>
+  `).join("");
 }
 
 const searchInput = document.getElementById("search");
@@ -112,3 +181,5 @@ searchInput.addEventListener("input", (e) => {
 });
 
 lnr();
+loadRecommendations();
+loadHistory();

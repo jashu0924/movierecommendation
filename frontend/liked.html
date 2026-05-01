@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Liked Movies</title>
+    <link rel="stylesheet" href="looks.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="dot"></span>
+          <div>
+            <h2>RJKN</h2>
+            <p>Movie Recommender</p>
+          </div>
+        </div>
+
+        <nav class="side-nav">
+          <a href="home.html" class="side-link">Discover</a>
+          <a href="liked.html" class="side-link active">Liked Movies</a>
+        </nav>
+
+        <div class="sidebar-user">
+          <p>Signed in as</p>
+          <span id="user-email"></span>
+          <button id="user-signout-btn">Sign Out</button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="hero-section">
+          <p class="eyebrow">Your favorites</p>
+          <h1>Liked Movies</h1>
+          <p class="hero-subtitle">Movies you liked will show up here.</p>
+        </section>
+
+        <div id="likedMoviesOut" class="grid"></div>
+      </main>
+    </div>
+
+    <script src="liked.js"></script>
+  </body>
+</html>
