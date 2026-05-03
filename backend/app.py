@@ -10,8 +10,10 @@ from supabase import create_client
 
 load_dotenv()
 
-sb_back = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_KEY"])
-
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92Ym5ueXJkbmlzcGR3dmdrbnZwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDU1Nzc3MCwiZXhwIjoyMDkwMTMzNzcwfQ.yuMJBO-hohy3GMSKZ-Nk1WjX0QKm2KxA_u6Ctc92Vtk"
+SUPABASE_URL = "https://ovbnnyrdnispdwvgknvp.supabase.co"
+TMDB_API_KEY = "2a664ef3374815347949ca389558ca4c"
+sb_back = create_client(SUPABASE_URL, SUPABASE_KEY)
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 CORS(app)
 
@@ -57,7 +59,7 @@ def movie_text(movie):
 
 
 def fetch_tmdb_movie(movie_id):
-    tmdb_key = os.environ["TMDB_API_KEY"]
+    tmdb_key = "2a664ef3374815347949ca389558ca4c"
     tmdb_url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={tmdb_key}"
 
     response = requests.get(tmdb_url)
@@ -169,7 +171,7 @@ def tmdb_list_to_movies(tmdb_movies):
 
 
 def fetch_tmdb_popular_movies(limit=20):
-    tmdb_key = os.environ["TMDB_API_KEY"]
+    tmdb_key = "2a664ef3374815347949ca389558ca4c"
     tmdb_url = f"https://api.themoviedb.org/3/movie/popular?api_key={tmdb_key}&language=en-US&page=1"
 
     response = requests.get(tmdb_url)
@@ -296,7 +298,7 @@ def search():
         return jsonify({"error": "Missing search query"}), 400
 
     try:
-        tmdb_key = os.environ["TMDB_API_KEY"]
+        tmdb_key = "2a664ef3374815347949ca389558ca4c"
 
         tmdb_url = (
             f"https://api.themoviedb.org/3/search/movie"

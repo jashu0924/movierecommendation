@@ -4,8 +4,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 // Configuration section, getting API keys etc
 const TMDB_API_KEY = '2a664ef3374815347949ca389558ca4c';
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const SUPABASE_URL = "https://ovbnnyrdnispdwvgknvp.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92Ym5ueXJkbmlzcGR3dmdrbnZwIiwicm9sZSI6InNlY3VyaXR5X3JlYWxtIiwiaWF0IjoxNzQ1NzQ3NzUwLCJleHAiOjIwNjAzMjM3NTB9.nHd8y5lSjJfVc286W1jz-19YmB8bWqyA-wP9T3mHpU";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
