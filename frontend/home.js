@@ -140,9 +140,6 @@ async function loadRecommendations() {
   document.getElementById("recommendationProfile").textContent = data.profile
     ? `Profile terms: ${data.profile}`
     : "Click or like movies to build your recommendation profile.";
-  const mapScore = data.metrics.map_at_10;
-  document.getElementById("mapScore").textContent =
-    mapScore === null ? "N/A" : Number(mapScore).toFixed(2);
   creatingmovies(data.results, "recommendations");
 }
 
