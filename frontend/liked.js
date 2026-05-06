@@ -9,6 +9,7 @@ if (!token || !userEmail || !userId) {
 document.getElementById("user-email").textContent = userEmail;
 document.getElementById("user-signout-btn").addEventListener("click", signOut);
 
+//signs out the user and removes access token, email and id, puts location back to initial login page
 function signOut() {
   localStorage.removeItem("access_token");
   localStorage.removeItem("user_email");
@@ -16,6 +17,8 @@ function signOut() {
   window.location.href = "login.html";
 }
 
+//for each movie, we need to render it based on movie and boxid, so we do that 
+// getelementbyid, get movie by its own id to populate screen
 function renderMovies(movies, boxid) {
   const container = document.getElementById(boxid);
   container.innerHTML = "";
@@ -45,7 +48,8 @@ function renderMovies(movies, boxid) {
     container.appendChild(card);
   });
 }
-
+//each user has their set of liked movies, so we can retrieve them from local host and then 
+//populate the screen with them
 async function loadLikedMovies() {
   const response = await fetch("http://127.0.0.1:5000/liked-movies", {
     headers: {
@@ -62,5 +66,5 @@ async function loadLikedMovies() {
 
   renderMovies(data.results, "likedMoviesOut");
 }
-
+//should display liked movies now
 loadLikedMovies();

@@ -16,7 +16,7 @@ if (!token) {
 document.getElementById("user-email").textContent = userEmail;
 
 document.getElementById("user-signout-btn").addEventListener("click", signOut);
-
+//same thing as liked , user needs to sign out
 async function signOut() {
   await supabaseClient.auth.signOut();
   localStorage.removeItem("access_token");
@@ -26,6 +26,7 @@ async function signOut() {
   window.location.href = "login.html";
 }
 
+//again same thing as login, we create the movies through their boxid, and getelemby id
 function creatingmovies(ourmovies, boxid) {
   const container = document.getElementById(boxid);
 
@@ -60,6 +61,8 @@ function creatingmovies(ourmovies, boxid) {
     container.appendChild(card);
   });
 }
+//if the movie is clicked tiny text pops up below it and mentions that it was clicked
+//so the user knows whether ir was clicked bc no animation or really an action for that
 async function movieClicked(movieId, title) {
   console.log("Clicked:", movieId, title);
 
@@ -83,7 +86,7 @@ async function movieClicked(movieId, title) {
     if (!response.ok) {
       console.log("Click was not saved:", data.error);
     }
-
+    //potential error if click is not saved, usually should be saved though
   } catch (error) {
     console.log("Backend click save failed:", error);
   }
@@ -102,7 +105,8 @@ async function lnr() {
 
   creatingmovies(moveioutputs.results, "newReleases");
 }
-
+//want to search each movie so we need to get a search output
+//from that we have a list of movies the user can click on and present the search results
 async function searchm(query) {
   if (!query) {
     document.getElementById("finalsearchOut").innerHTML = "";
@@ -122,7 +126,8 @@ async function searchm(query) {
 
   creatingmovies(data.results, "finalsearchOut");
 }
-
+//based on our engine we have recommendations the user can click on
+//through local host we display the recommendations and load them with each poster on the screen 
 async function loadRecommendations() {
   const response = await fetch("http://127.0.0.1:5000/recommendations", {
     headers: {
@@ -136,7 +141,9 @@ async function loadRecommendations() {
     document.getElementById("recommendations").innerHTML = `<p>${data.error}</p>`;
     return;
   }
-
+  //get recommendations for each user based on their profile and then display what user need to do
+  //so in this case just click or like movies to build their recommendations
+  //this is dependent based on who the user is 
   document.getElementById("recommendationProfile").textContent = data.profile
     ? `Profile terms: ${data.profile}`
     : "Click or like movies to build your recommendation profile.";
@@ -177,6 +184,7 @@ searchInput.addEventListener("input", (e) => {
   searchm(e.target.value);
 });
 
+//run each of the functions for overall line for the functions
 lnr();
 loadRecommendations();
 loadHistory();
